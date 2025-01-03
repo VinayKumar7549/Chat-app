@@ -10,19 +10,19 @@ export const signup = async (req, res) => {
         if (!fullName) {
             return res
                 .status(400)
-                .json({message: "Please enter your full name" });
+                .json({ message: "Please enter your full name" });
         }
 
         if (!email) {
             return res
                 .status(400)
-                .json({message: "Email is required" });
+                .json({ message: "Email is required" });
         }
 
         if (!password) {
             return res
                 .status(400)
-                .json({message: "Password is required" });
+                .json({ message: "Password is required" });
         }
 
         if (password.length < 6) {
@@ -85,13 +85,13 @@ export const login = async (req, res) => {
 
         //Check is the eamil exists
         if (!user) {
-            return res.status(400).json({message: "Invalid email or password" })
+            return res.status(400).json({ message: "Invalid email or password" })
         }
 
         //If email exists, now check is the password correct
         const isPasswordCOrrest = await bcrypt.compare(password, user.password);
         if (!isPasswordCOrrest) {
-            return res.status(400).json({message: "Invalid email or password" });
+            return res.status(400).json({ message: "Invalid email or password" });
         }
 
         //generating jwt token
@@ -123,20 +123,32 @@ export const logout = (req, res) => {
     }
 };
 
-export const updateProfile = async (req,res) => {
+export const updateProfile = async (req, res) => {
     try {
-        const {profilePic} = req.body;
+        const { profilePic } = req.body;
         const userId = req.user._id;          //we can acces the user id from the req object bcz in protectedRoute we passed user into the req
 
-        if(!profilePic){
-            return res.status(400).json({message:"Please add a profile picture"})
+        if (!profilePic) {
+            return res.status(400).json({ message: "Please add a profile picture" })
         }
 
         const uploadResponse = await cloudinary.uploader.upload(profilePic);   //uploads the image to cloudinary bucket
 
-        const updatedUser = await User.findByIdAndUpdate(userId, {profilePic: uploadResponse.secure_url} //This is a field that clodinary gives back
-            , {new:true})  //By default, findOneAndUpdate() returns the document as it was before update was applied. If you set new: true, findOneAndUpdate() will instead give you the object after update was applied.
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { profilePic: uploadResponse.secure_url },  //This is a field that clodinary gives back
+            { new: true })  //By default, findOneAndUpdate() returns the document as it was before update was applied. If you set new: true, findOneAndUpdate() will instead give you the object after update was applied.
     } catch (error) {
-        
+        console.log("error in update profile controller", error.message); // for debugging
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+export const checkAuth = (req, res) => {
+    try {
+        res.status(200).json(req.user);
+    } catch (error) {
+        console.log("Error in checkAuth controller", error.message); // for debugging
+        res.status(500).json({ message: "Internal Server Error" });
     }
 }
