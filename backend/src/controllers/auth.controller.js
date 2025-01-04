@@ -146,7 +146,7 @@ export const updateProfile = async (req, res) => {
 
 export const checkAuth = (req, res) => {
     try {
-        res.status(200).json(req.user);
+        res.status(200).json(req.user);    //we can acces the userInfo from the req object bcz in protectedRoute we passed user into the req
     } catch (error) {
         console.log("Error in checkAuth controller", error.message); // for debugging
         res.status(500).json({ message: "Internal Server Error" });
