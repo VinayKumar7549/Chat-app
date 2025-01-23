@@ -138,6 +138,7 @@ export const updateProfile = async (req, res) => {
             userId,
             { profilePic: uploadResponse.secure_url },  //This is a field that clodinary gives back
             { new: true })  //By default, findOneAndUpdate() returns the document as it was before update was applied. If you set new: true, findOneAndUpdate() will instead give you the object after update was applied.
+            res.status(200).json(updatedUser);
     } catch (error) {
         console.log("error in update profile controller", error.message); // for debugging
         res.status(500).json({ message: "Internal Server Error" });
