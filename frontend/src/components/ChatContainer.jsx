@@ -13,13 +13,25 @@ const ChatContainer = () => {
     getMessages,
     isMessagesLoading,
     selectedUser,
+    subscribeToMessages,
+    unsubscribeFromMessages,
   } = useChatStore();
+
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
   useEffect(() => {
     getMessages(selectedUser._id);
-  }, [selectedUser._id, getMessages]);
+
+    subscribeToMessages();
+    return () => unsubscribeFromMessages();
+  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+
+  useEffect(() => {
+    if (messageEndRef.current && messages) {
+      messageEndRef.current.scrollIntoView({ behaviour: "smooth" });
+    }
+  },[messages]);
 
   if (isMessagesLoading) {
     return (
@@ -41,6 +53,7 @@ const ChatContainer = () => {
             key={message._id}
             className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
             ref={messageEndRef}
+
           >
             <div className="chat-image avatar">
               <div className="size-8 rounded-full border">
@@ -59,7 +72,7 @@ const ChatContainer = () => {
                 {formatMessageTime(message.createdAt)}
               </time>
             </div>
-            <div className="chat-bubble flex flex-col max-w-[80%] px-3 py-1 text-sm leading-tight min-h-0"> 
+            <div className="chat-bubble flex flex-col max-w-[80%] px-3 py-1 text-sm leading-tight min-h-0">
               {message.image && (
                 <img
                   src={message.image}
